@@ -1,0 +1,54 @@
+version: "3"
+
+services:
+  # athenapdf:
+  #   image: arachnysdocker/athenapdf-service:2.10.0
+  #   environment:
+  #     WEAVER_AUTH_KEY: weaver-auth-key
+  #     WEAVER_ATHENA_CMD: "athenapdf -S"
+  #     WEAVER_MAX_WORKERS: 10
+  #     WEAVER_MAX_CONVERSION_QUEUE: 50
+  #     WEAVER_WORKER_TIMEOUT: 90
+  #     WEAVER_CONVERSION_FALLBACK: false
+  db:
+    image: postgres:12-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - /app/data:/var/lib/postgresql
+    environment:
+      - POSTGRES_DB=test1
+      - POSTGRES_USER=moni
+      - POSTGRES_PASSWORD=moni
+
+
+  web:
+  # Need to change in the weaver script
+    env_file: .venv/Scripts/
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command:  python manage.py runserver 0.0.0.0:8000
+    #Where django gets the code
+    volumes:
+      - .:/app
+      # Forward port from  computer to docker image
+    ports:
+      - "8000:8000"
+    # In ordr for web to work -> need to use db service 
+    depends_on:
+      - db
+      ## Does docker need a venv file??
+    # env_file:
+    #   - .venv
+    # environment:
+    #   - POSTGRES_DB=test1
+    #   - POSTGRES_USER=moni
+    #   - POSTGRES_PASSWORD=moni
+  
+# volumes:
+#   db-postgres:
+  
+  # networks:
+  #   app-network:
+  #     external: true
