@@ -19,6 +19,7 @@ RUN apt-get update -y \
     && pip3 install --upgrade pi
 
 RUN pip3 install poetry
+# Abitary app -> This folder is withtin docker
 RUN mkdir /app
 WORKDIR /app
 
@@ -27,6 +28,8 @@ RUN poetry config virtualenvs.in-project true  \
     && poetry run pip install -U setuptools==57.0.0
 RUN poetry install
 
+# Placed here so we don't trigger change that often
 COPY . .
 
+# Access Docker via  Port 5000
 EXPOSE 5000

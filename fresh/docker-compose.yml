@@ -2,20 +2,48 @@ version: "3"
 
 services:
   db:
+    restart: unless-stopped #Modification here
     image: postgres:12-alpine
+    #Create a container
+    container_name: db
     ports:
       - "5432:5432"
     environment:
       - POSTGRES_DB=test1
       - POSTGRES_USER=moni
       - POSTGRES_PASSWORD=moni
+      # Latest attempt to solve Could not translate host name "db" to address using Postgres
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    # Help solve with translating host name "db" to addreass
+    networks:
+      - djangonetwork
 
   web:
     build:
       context: .
+      # Referencing docker file because we are composing
       dockerfile: Dockerfile
+      #Run using poetry first
     command: poetry run python manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"
     depends_on:
       - db
+    # Help solve with translating host name "db" to addreass
+    links:
+      - db:db
+    networks:
+      - djangonetwork
+      #Added
+    environment:
+      - DB_HOST=db
+
+      # Volume don't need to rerun build over and over
+      # Still need to rerun the docker compose up
+    volumes:
+      - .:/app
+
+    # Help solve with translating host name "db" to addreass
+networks:
+  djangonetwork:
+    driver: bridge
