@@ -24,7 +24,7 @@ services:
       # Referencing docker file because we are composing
       dockerfile: Dockerfile
       #Run using poetry first
-    command: poetry run python manage.py runserver 0.0.0.0:8000
+    command: sh start.sh
     ports:
       - "8000:8000"
     depends_on:
